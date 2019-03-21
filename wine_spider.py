@@ -20,13 +20,12 @@ class WineSpider(Spider):
             date = date[:4] + '-' + date[4:6] + '-' + date[6:]
             name = link.css(' ::text').extract()
             name = ''.join(name).strip()
-            relative_link = response.css(' ::attr(href)').extract_first()
+            relative_link = link.css(' ::attr(href)').extract_first()
             absolute_link = response.urljoin(relative_link)
 
             overview_list.append([name, date, absolute_link])
 
-            yield response.follow(url=absolute_link,
-                                  callback=self.parse_vineyard)
+            yield response.follow(url=absolute_link, callback=self.parse_vineyard)
 
         # Navigate to next date of page backup.
         yield Request(url=response.css('td.f ::attr(href)').extract_first(), callback=self.parse_links)
@@ -38,9 +37,11 @@ class WineSpider(Spider):
         info = [line for line in info if line]
 
         name = info[0]
-        address = get_address(info)
         link = info[1]
         date = response.url[28:36]
+
+        # The get_address function can be found in the utilities folder.
+        address = get_address(info)
 
         vineyards_list.append([name, date, address, link])
 
